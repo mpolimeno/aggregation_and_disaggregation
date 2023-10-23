@@ -13,6 +13,20 @@ export individuallyadded_aggregate!
 function individuallyadded_aggregate!(cubes::Matrix{Integer},number_of_cubes::Integer,dimensionality::Integer,
     deltaR::Float64,steplength::Integer,attaching_distance::Integer)
         
+    """
+    individuallyadded_aggregate!(cubes::Matrix{Integer},number_of_cubes::Integer,dimensionality::Integer,
+        deltaR::Float64,steplength::Integer,attaching_distance::Integer)
+
+    This function implements a basic diffusion-limited individually-added aggregation routine on a 3D lattice
+    Relevant reference: https://journals.aps.org/prfluids/abstract/10.1103/PhysRevFluids.5.044305
+    # Arguments
+    - cubes::Matrix{Integer}        : matrix containing the cubes that make up one aggregate
+    - number_of_cubes::Integer      : number of cubes in the aggregate
+    - dimensionality::Integer       : dimensionality of the problem (3D in the current setting)
+    - deltaR::Float64               : number to be added to the radius of the sphere where we generate each random walker as aggregates increases in size
+    - steplength::Integer           : length of each step that any single cube is allowed to take as it walks towards the stationary aggregate
+    - attaching_distance::Integer   : how far we allow the walking cube to be in order for it to attach to a cube that is part of the aggregate
+    """
     current_center_of_mass::Vector{Float64} = zeros(dimensionality)
     for current_cube = 2:number_of_cubes # loop starts at 2, because cube-1 is stationary at the origin
         current_aggregate::Matrix{Integer} = cubes[1:current_cube,:]
