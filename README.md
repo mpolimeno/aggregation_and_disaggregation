@@ -1,2 +1,2 @@
 # aggregation_and_disaggregation
-This repository will contain the Julia-based implementation of DLA and BIE routines
+This repository contains the Julia-based implementation of Diffusion-Limited Aggregation routine for the IAA case
