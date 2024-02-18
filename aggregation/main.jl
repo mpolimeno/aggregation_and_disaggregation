@@ -1,9 +1,11 @@
 include("RandomWalk.jl")
 include("Metrics.jl")
 include("BuildAggregate.jl")
+include("BaseCube.jl")
 using .RandomWalk
 using .Metrics
 using .BuildAggregate
+using .BaseCube
 using Random
 
 
@@ -17,6 +19,17 @@ dimensionality::Integer = 3
 if dimensionality != 3
     error("dimensionality MUST be 3")
 end
+# number of faces in a single cube
+numberoffaces_inacube::Integer = 6;
+if numberoffaces_inacube != 6
+    error("numberoffaces_inacube MUST be 6")
+end
+# location of center of faces of base cube (centered at the origin)
+centerof_baseface::Integer = 1;
+if centerof_baseface != 1
+    error("centerof_baseface MUST be 1")
+end
+
 # initialize array to hold position of cubes in aggregate
 cubes::Matrix{Integer} = zeros(number_of_cubes,dimensionality)
 
@@ -34,4 +47,17 @@ final_position::Matrix{Integer} = individuallyadded_aggregate!(cubes,number_of_c
 # print result nicely
 for ii in axes(cubes,1)
     println(final_position[ii,:])
+end
+
+# define the position of the faces of the base cube of the aggregate
+position_offaces::Matrix{Integer} = positionoffaces_of_basecube(numberoffaces_inacube,dimensionality,centerof_baseface)
+# print position of faces of base cube
+for jj in axes(position_offaces,1)
+    println(position_offaces[jj,:])
+end
+
+# define orientation of faces of the base cube of the aggregate
+for kk in axes(position_offaces,1)
+    orientationoffaces::String = orientationoffaces_ofbasecube(kk)
+    println(orientationoffaces)
 end
