@@ -2,10 +2,12 @@ include("RandomWalk.jl")
 include("Metrics.jl")
 include("BuildAggregate.jl")
 include("BaseCube.jl")
+include("BuildFaces.jl")
 using .RandomWalk
 using .Metrics
 using .BuildAggregate
 using .BaseCube
+using .BuildFaces
 using Random
 
 
@@ -13,7 +15,7 @@ using Random
 Random.seed!(1)
 
 # select how many cubes will be in the aggregate
-number_of_cubes::Integer = 10
+number_of_cubes::Integer = 2
 # select dimensionality -> MUST BE 3
 dimensionality::Integer = 3
 if dimensionality != 3
@@ -33,6 +35,21 @@ end
 # initialize array to hold position of cubes in aggregate
 cubes::Matrix{Integer} = zeros(number_of_cubes,dimensionality)
 
+### THE BASE CUBE ####
+# define the position of the faces of the base cube of the aggregate
+position_offaces::Matrix{Integer} = positionoffaces_of_basecube(numberoffaces_inacube,dimensionality,centerof_baseface)
+# print position of faces of base cube
+println("POSITION OF FACES OF BASE CUBE:")
+for jj in axes(position_offaces,1)
+    println(position_offaces[jj,:])
+end
+# define orientation of faces of the base cube of the aggregate
+println("ORIENTATION OF FACES OF BASE CUBE:")
+for kk in axes(position_offaces,1)
+    orientationoffaces::String = orientationoffaces_ofbasecube(kk)
+    println(orientationoffaces)
+end
+
 # implement Individually-added aggregation routine
 # Reference: https://journals.aps.org/prfluids/abstract/10.1103/PhysRevFluids.5.044305
 # constants for the routine
@@ -44,20 +61,23 @@ if attaching_distance!=steplength
 end
 # call function that returns the final aggregate
 final_position::Matrix{Integer} = individuallyadded_aggregate!(cubes,number_of_cubes,dimensionality,deltaR,steplength,attaching_distance)
+
 # print result nicely
+println("POSITION OF CUBES IN AGGREGATE:")
 for ii in axes(cubes,1)
     println(final_position[ii,:])
 end
 
-# define the position of the faces of the base cube of the aggregate
-position_offaces::Matrix{Integer} = positionoffaces_of_basecube(numberoffaces_inacube,dimensionality,centerof_baseface)
-# print position of faces of base cube
-for jj in axes(position_offaces,1)
-    println(position_offaces[jj,:])
+# print position of external faces
+externalfaces::Matrix{Integer} = build_externalfacesofaggregate(numberoffaces_inacube,dimensionality,centerof_baseface,final_position)
+println("POSITION OF EXTERNAL FACES OF AGGREGATE:")
+for ii in axes(externalfaces,1)
+    println(externalfaces[ii,:])
 end
 
-# define orientation of faces of the base cube of the aggregate
-for kk in axes(position_offaces,1)
-    orientationoffaces::String = orientationoffaces_ofbasecube(kk)
-    println(orientationoffaces)
+# print orientation of external faces
+orientationof_externalfaces::Vector{String} = getorientation_externalfacesofaggregate(numberoffaces_inacube,dimensionality,centerof_baseface,final_position)
+println("ORIENTATION OF EXTERNAL FACES OF AGGREGATE:")
+for ii in eachindex(orientationof_externalfaces)
+    println(orientationof_externalfaces[ii])
 end
