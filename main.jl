@@ -1,13 +1,16 @@
-include("RandomWalk.jl")
-include("Metrics.jl")
-include("BuildAggregate.jl")
-include("BaseCube.jl")
-include("BuildFaces.jl")
+include("aggregation/RandomWalk.jl")
+include("aggregation/Metrics.jl")
+include("aggregation/BuildAggregate.jl")
+include("aggregation/BaseCube.jl")
+include("aggregation/BuildFaces.jl")
+include("disaggregation/SingleLayer.jl")
 using .RandomWalk
 using .Metrics
 using .BuildAggregate
 using .BaseCube
 using .BuildFaces
+using .SingleLayer
+
 using Random
 
 
@@ -80,4 +83,14 @@ orientationof_externalfaces::Vector{String} = getorientation_externalfacesofaggr
 println("ORIENTATION OF EXTERNAL FACES OF AGGREGATE:")
 for ii in eachindex(orientationof_externalfaces)
     println(orientationof_externalfaces[ii])
+end
+
+# single-layer
+res = build_singlelayermatrix(externalfaces[4,:],externalfaces[4,:],orientationof_externalfaces[4],dimensionality)
+for ii in axes(res,1)
+    for jj in axes(res,2)
+        print(res[ii,jj])
+        print("\t")
+    end
+    println()
 end
