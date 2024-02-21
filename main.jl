@@ -13,29 +13,54 @@ using .SingleLayer
 
 using Random
 using BenchmarkTools
-
+using DelimitedFiles
 
 # select seed for reproducibility
 Random.seed!(1)
 
-# select how many cubes will be in the aggregate
-number_of_cubes::Integer = 100
-# select dimensionality -> MUST BE 3
-dimensionality::Integer = 3
+# initialize all constant types and parse them from the input files
+number_of_cubes::Integer = 0
+dimensionality::Integer = 0
+numberoffaces_inacube::Integer = 0
+centerof_baseface::Integer = 0
+deltaR::Float64 = 0 # radius of sphere on whose surface each random walker is generated
+steplength::Integer = 0
+inputs = readdlm("inputs.txt",'=')
+for ii in axes(inputs,1)
+    for jj=1:(size(inputs,2)-1)
+        if inputs[ii,jj] == "TOTAL_NUMBER_OF_CUBES"
+            global number_of_cubes = inputs[ii,jj+1]
+        elseif inputs[ii,jj] == "DIMENSIONALITY"
+            global dimensionality = inputs[ii,jj+1]
+        elseif inputs[ii,jj] == "FACES_IN_A_SINGLE_CUBE"
+            global numberoffaces_inacube = inputs[ii,jj+1]
+        elseif inputs[ii,jj] == "CENTER_OF_BASE_FACE"
+            global centerof_baseface = inputs[ii,jj+1]
+        elseif inputs[ii,jj] == "DELTA_R"
+            global deltaR = inputs[ii,jj+1]
+        elseif inputs[ii,jj] == "STEPLENGTH"
+            global steplength = inputs[ii,jj+1]
+        elseif inputs[ii,jj] == "ATTACHING_DISTANCE"
+            global attaching_distance = inputs[ii,jj+1]
+        end
+    end 
+end
+
 if dimensionality != 3
     error("dimensionality MUST be 3")
 end
-# number of faces in a single cube
-numberoffaces_inacube::Integer = 6;
+
 if numberoffaces_inacube != 6
     error("numberoffaces_inacube MUST be 6")
 end
-# location of center of faces of base cube (centered at the origin)
-centerof_baseface::Integer = 1;
+
 if centerof_baseface != 1
     error("centerof_baseface MUST be 1")
 end
 
+if attaching_distance!=steplength
+    error("attaching_distance MUST be equal to steplength: random walk is on a 3d-lattice")
+end
 # initialize array to hold position of cubes in aggregate
 cubes::Matrix{Integer} = zeros(number_of_cubes,dimensionality)
 
@@ -56,13 +81,7 @@ end
 
 # implement Individually-added aggregation routine
 # Reference: https://journals.aps.org/prfluids/abstract/10.1103/PhysRevFluids.5.044305
-# constants for the routine
-deltaR::Float64 = 10 # radius of sphere on whose surface each random walker is generated
-steplength::Integer = 2
-attaching_distance::Integer = steplength # must be equal to step-length for 3d-lattice random walk
-if attaching_distance!=steplength
-    error("attaching_distance MUST be equal to steplength: random walk is on a 3d-lattice")
-end
+
 # call function that returns the final aggregate
 final_position::Matrix{Integer} = individuallyadded_aggregate!(cubes,number_of_cubes,dimensionality,deltaR,steplength,attaching_distance)
 
