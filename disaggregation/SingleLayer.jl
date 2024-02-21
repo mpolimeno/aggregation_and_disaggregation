@@ -20,7 +20,7 @@ function maporientation_tointeger(face_orientation::String)
     return normal_direction
 end
 
-function compute_offdiagonalconstantterms(x_s::Float64,y_s::Float64,z_s::Float64,z::Float64,cij::Float64)
+function compute_constantterms(x_s::Float64,y_s::Float64,z_s::Float64,z::Float64,cij::Float64)
     if round(z) == round(z_s) && round(abs(x_s)) == 1 && round(abs(y_s)) == 1
         cij = 4*asinh(1)
     else
@@ -100,7 +100,7 @@ function compute_offdiagonalconstantterms(x_s::Float64,y_s::Float64,z_s::Float64
     return cij
 end
 
-function compute_offdiagonalxterms(x_s::Float64,y_s::Float64,z_s::Float64,z::Float64,offdiagonal_xij::Float64)
+function computexterms_caseone(x_s::Float64,y_s::Float64,z_s::Float64,z::Float64,first_xij::Float64)
     if  round(z) != round(z_s) 
         if round(x_s) != 1 
             px1 = (1-x_s)*(atan(((1-y_s)*(1-x_s))/((z-z_s)*sqrt((z-z_s)*(z-z_s) + (1-x_s)*(1-x_s) + (1-y_s)*(1-y_s)))))/((z-z_s)*(1-x_s))
@@ -122,16 +122,126 @@ function compute_offdiagonalxterms(x_s::Float64,y_s::Float64,z_s::Float64,z::Flo
         px3 = 0
         px4 = 0
     end
-    offdiagonal_xij = (z-z_s)*(z-z_s)*(px1+px2+px3+px4)
+    first_xij = (z-z_s)*(z-z_s)*(px1+px2+px3+px4)
 
-    return offdiagonal_xij
+    return first_xij
 end
 
-# Note to self: this function is way to big and untestable. Should be broken down into multiple functions ASAP
+function computexterms_casetwo(x_s::Float64,y_s::Float64,z_s::Float64,z::Float64,second_xij::Float64)
+    if round(z) != round(z_s)
+        px1 = - (z-z_s)*atan(((1-x_s)*(1-y_s))/((z-z_s)*sqrt((z-z_s)*(z-z_s) +(1-x_s)*(1-x_s) + (1-y_s)*(1-y_s)))) + 
+                (z-z_s)*atan((1-y_s)/(z-z_s)) + (1-y_s)*(log(sqrt((z-z_s)*(z-z_s) + (1-x_s)*(1-x_s) + (1-y_s)*(1-y_s)) + (1-x_s)) - 1)
+
+        px2 = - (z-z_s)*atan(((1-x_s)*(-1-y_s))/((z-z_s)*sqrt((z-z_s)*(z-z_s) + (1-x_s)*(1-x_s) + (-1-y_s)*(-1-y_s)))) + 
+                (z-z_s)*atan((-1-y_s)/(z-z_s)) + (-1-y_s)*(log(sqrt((z-z_s)*(z-z_s) + (1-x_s)*(1-x_s) + (-1-y_s)*(-1-y_s)) + (1-x_s)) - 1)
+
+        px3 = - (z-z_s)*atan(((-1-x_s)*(1-y_s))/((z-z_s)*sqrt((z-z_s)*(z-z_s) + (-1-x_s)*(-1-x_s) + (1-y_s)*(1-y_s)))) + 
+                (z-z_s)*atan((1-y_s)/(z-z_s)) + (1-y_s)*(log(sqrt((z-z_s)*(z-z_s) + (-1-x_s)*(-1-x_s) + (1-y_s)*(1-y_s)) + (-1-x_s)) - 1)
+
+        px4 = - (z-z_s)*atan(((-1-x_s)*(-1-y_s))/((z-z_s)*sqrt((z-z_s)*(z-z_s) + (-1-x_s)*(-1-x_s) + (-1-y_s)*(-1-y_s)))) + 
+                (z-z_s)*atan((-1-y_s)/(z-z_s)) + (-1-y_s)*(log(sqrt((z-z_s)*(z-z_s) + (-1-x_s)*(-1-x_s) + (-1-y_s)*(-1-y_s)) + (-1-x_s)) - 1)
+    else
+        if round(x_s) ==1
+            if round(y_s) != 1
+                px1 = 0.5*(1-y_s)*(log((1-y_s)*(1-y_s)) - 2)
+            else
+                px1 = 0
+            end
+            if round(y_s) != (-1)
+                px2 = 0.5*(-1-y_s)*(log((-1-y_s)*(-1-y_s)) - 2)
+            else
+                px2 = 0
+            end
+        else
+            if round(y_s) != 1
+                px1 = (1-y_s)*(log(sqrt( (1-x_s)*(1-x_s) + (1-y_s)*(1-y_s)) + (1-x_s)) - 1)
+            else
+                px1 = 0
+            end
+            if round(y_s) != (-1)
+                px2 =  (-1-y_s)*(log(sqrt((1-x_s)*(1-x_s) + (-1-y_s)*(-1-y_s)) + (1-x_s)) - 1)
+            else
+                px2 = 0
+            end
+        end
+        if round(x_s) == (-1)
+            if round(y_s) != 1
+                px3 = (1-y_s)*(log(sqrt((-1-x_s)*(-1-x_s) + (1-y_s)*(1-y_s)) + (-1-x_s)) - 1)
+            else
+                px3 = 0
+            end
+            if round(y_s) != (-1)
+                px4 = (-1-y_s)*(log(sqrt((-1-x_s)*(-1-x_s) + (-1-y_s)*(-1-y_s)) + (-1-x_s)) - 1)
+            else
+                px4 = 0
+            end
+        else
+            if round(y_s) != 1
+                px3 = (1-y_s)*(log(sqrt((-1-x_s)*(-1-x_s) + (1-y_s)*(1-y_s)) + (-1-x_s)) - 1)
+            else
+                px3 = 0
+            end
+            if round(y_s) != (-1)
+                px4 = (-1-y_s)*(log(sqrt((-1-x_s)*(-1-x_s) + (-1-y_s)*(-1-y_s)) + (-1-x_s)) - 1)
+            else
+                px4 = 0
+            end
+        end
+    end
+    second_xij = px1 - px2 - px3 + px4
+
+    return second_xij
+end
+
+function computexterms_casethree(x_s::Float64,y_s::Float64,z_s::Float64,z::Float64,third_xij::Float64)
+    if round(z) != round(z_s)
+        px1 =  -log(sqrt((z-z_s)*(z-z_s) + (1-x_s)*(1-x_s)  + (1-y_s)*(1-y_s)) + (1-y_s))
+        px2 =  log(sqrt((z-z_s)*(z-z_s) + (1+x_s)*(1+x_s)  + (1-y_s)*(1-y_s)) + (1-y_s))
+        px3 =  log(sqrt((z-z_s)*(z-z_s) + (1-x_s)*(1-x_s)  + (-1-y_s)*(-1-y_s)) + (-1-y_s))
+        px4 =  -log(sqrt((z-z_s)*(z-z_s) + (1+x_s)*(1+x_s)  + (-1-y_s)*(-1-y_s)) + (-1-y_s))
+
+    else
+        px1 = 0
+        px2 = 0
+        px3 = 0
+        px4 = 0
+    end
+    third_xij = (z-z_s)*(px1 + px2 + px3 + px4)
+
+    return third_xij
+end
+
+function computexterms_casefour(x_s::Float64,y_s::Float64,z_s::Float64,z::Float64,fourth_xij::Float64)
+    if round(z) != round(z_s)
+        px1 =  -log(sqrt((z-z_s)*(z-z_s) + (1-x_s)*(1-x_s)  + (1-y_s)*(1-y_s)) + (1-y_s))
+        px2 =  log(sqrt((z-z_s)*(z-z_s) + (1+x_s)*(1+x_s)  + (1-y_s)*(1-y_s)) + (1-y_s))
+        px3 =  log(sqrt((z-z_s)*(z-z_s) + (1-x_s)*(1-x_s)  + (-1-y_s)*(-1-y_s)) + (-1-y_s))
+        px4 =  -log(sqrt((z-z_s)*(z-z_s) + (1+x_s)*(1+x_s)  + (-1-y_s)*(-1-y_s)) + (-1-y_s))
+    else
+        px1 = 0
+        px2 = 0
+        px3 = 0
+        px4 = 0
+    end
+    fourth_xij= (z-z_s)*(px1 + px2 + px3 + px4)
+
+    return fourth_xij
+end
+
+function computexterms_casefive(x_s::Float64,y_s::Float64,z_s::Float64,z::Float64,fifth_xij::Float64)
+    px1 = -sqrt((z-z_s)*(z-z_s) + (1-x_s)*(1-x_s) + (1-y_s)*(1-y_s))
+    px2 = sqrt((z-z_s)*(z-z_s) + (1-x_s)*(1-x_s) + (1+y_s)*(1+y_s))
+    px3 = sqrt((z-z_s)*(z-z_s) + (1+x_s)*(1+x_s) + (1-y_s)*(1-y_s))
+    px4 = -sqrt((z-z_s)*(z-z_s) + (1+x_s)*(1+x_s) + (1+y_s)*(1+y_s))
+    
+    fifth_xij = px1 + px2 + px3 + px4
+    return fifth_xij
+end
 
 function build_singlelayermatrix(integration_point::Vector{Integer},face_center::Vector{Integer},face_orientation::String,dimensionality::Integer)
     position::Vector{Integer} = integration_point - face_center
     normal_direction::Integer = maporientation_tointeger(face_orientation)
+    numberoffaces_inacube::Integer = 6;
 
     # main loop to build the entries of the matrix
     constant_terms::Matrix{Float64} = zeros(dimensionality,dimensionality)
@@ -153,22 +263,59 @@ function build_singlelayermatrix(integration_point::Vector{Integer},face_center:
                     z_s::Float64 = position[normal_direction,1]
                     z::Float64  = 0
                     # assign the values to the constant terms first
-                    offdiagonal_cij::Float64 = 0;
-                    constant_terms[ii,jj] = compute_offdiagonalconstantterms(x_s,y_s,z_s,z,offdiagonal_cij)
+                    first_cij::Float64 = 0;
+                    constant_terms[ii,jj] = compute_constantterms(x_s,y_s,z_s,z,first_cij)
                     #######################################################
                     # Now we assign the analytical values to the xx terms
                     if ii == normal_direction
-                        offdiagonal_xij::Float64 = 0;
-                        x_terms[ii,jj] = compute_offdiagonalxterms(x_s,y_s,z_s,z,offdiagonal_xij)
+                        println("CASE 1")
+                        first_xij::Float64 = 0;
+                        x_terms[ii,jj] = computexterms_caseone(x_s,y_s,z_s,z,first_xij)
+                    else
+                        println("CASE 2")
+                        x_s2::Float64 = position[ii,1]
+                        y_s2::Float64 = position[numberoffaces_inacube-normal_direction-ii,1]
+                        z_s2::Float64 = position[normal_direction,1]
+                        z2::Float64  = 0
+                        second_xij::Float64 = 0;
+                        x_terms[ii,jj] = computexterms_casetwo(x_s2,y_s2,z_s2,z2,second_xij)
                     end
+
                 else # ii!=jj, and so we are off the diagonal
                     constant_terms[ii,jj] = 0
+                    #######################################################
+                    # Now we assign the analytical values to the xx terms
+                    if ii != normal_direction && jj == normal_direction
+                        println("CASE 3")
+                        x_s3::Float64 = position[ii,1]
+                        y_s3::Float64 = position[numberoffaces_inacube-normal_direction-ii,1]
+                        z_s3::Float64 = position[normal_direction,1]
+                        z3::Float64  = 0
+                        third_xij::Float64 = 0;
+                        x_terms[ii,jj] = computexterms_casethree(x_s3,y_s3,z_s3,z3,third_xij)
+                    elseif ii == normal_direction && jj != normal_direction
+                        println("CASE 4")
+                        x_s4::Float64 = position[jj,1]
+                        y_s4::Float64 = position[numberoffaces_inacube-normal_direction-jj,1]
+                        z_s4::Float64 = position[normal_direction,1]
+                        z4::Float64  = 0
+                        fourth_xij::Float64 = 0;
+                        x_terms[ii,jj] = computexterms_casefour(x_s4,y_s4,z_s4,z4,fourth_xij)
+                    else
+                        println("CASE 5")
+                        x_s5::Float64 = position[ii,1]
+                        y_s5::Float64 = position[jj,1]
+                        z_s5::Float64 = position[normal_direction,1]
+                        z5::Float64  = 0
+                        fifth_xij::Float64 = 0;
+                        x_terms[ii,jj] = computexterms_casefive(x_s5,y_s5,z_s5,z5,fifth_xij)
+                    end
                 end
             end
         end
     end
   
-    return x_terms
+    return constant_terms, x_terms
 end
 
 end

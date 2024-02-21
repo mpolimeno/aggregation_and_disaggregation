@@ -12,6 +12,8 @@ using .BuildFaces
 using .SingleLayer
 
 using Random
+using BenchmarkTools
+using Distributed
 
 
 # select seed for reproducibility
@@ -85,12 +87,36 @@ for ii in eachindex(orientationof_externalfaces)
     println(orientationof_externalfaces[ii])
 end
 
-# single-layer
-res = build_singlelayermatrix(externalfaces[4,:],externalfaces[4,:],orientationof_externalfaces[4],dimensionality)
-for ii in axes(res,1)
-    for jj in axes(res,2)
-        print(res[ii,jj])
+# single-layer x_terms for one face (debuggin purposes)
+const_res, x_res = build_singlelayermatrix(externalfaces[4,:],externalfaces[6,:],orientationof_externalfaces[6],dimensionality)
+println("CONSTANT TERMS")
+for ii in axes(const_res,1)
+    for jj in axes(const_res,2)
+        print(const_res[ii,jj])
         print("\t")
     end
     println()
 end
+println("X TERMS")
+for ii in axes(x_res,1)
+    for jj in axes(x_res,2)
+        print(x_res[ii,jj])
+        print("\t")
+    end
+    println()
+end
+
+# full single layer potential 
+println("SINGLE LAYER")
+# single-layer
+LHS_single = zeros(size(externalfaces,1)*dimensionality,size(externalfaces,1)*dimensionality)
+@btime begin
+for ii in axes(externalfaces,1)
+    integration_point::Vector{Integer} = externalfaces[ii,:]
+    for jj in axes(externalfaces,1)
+        constant_terms,x_terms = build_singlelayermatrix(integration_point,externalfaces[jj,:],orientationof_externalfaces[jj],dimensionality)
+        LHS_single[dimensionality*(ii-1)+1:dimensionality*ii,dimensionality*(jj-1)+1:dimensionality*jj] = (constant_terms+x_terms);
+    end
+end
+end
+println(LHS_single)
