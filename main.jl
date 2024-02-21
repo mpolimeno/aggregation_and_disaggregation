@@ -13,14 +13,13 @@ using .SingleLayer
 
 using Random
 using BenchmarkTools
-using Distributed
 
 
 # select seed for reproducibility
 Random.seed!(1)
 
 # select how many cubes will be in the aggregate
-number_of_cubes::Integer = 2
+number_of_cubes::Integer = 100
 # select dimensionality -> MUST BE 3
 dimensionality::Integer = 3
 if dimensionality != 3
@@ -111,7 +110,7 @@ println("SINGLE LAYER")
 # single-layer
 LHS_single = zeros(size(externalfaces,1)*dimensionality,size(externalfaces,1)*dimensionality)
 @btime begin
-for ii in axes(externalfaces,1)
+Threads.@threads for ii in axes(externalfaces,1)
     integration_point::Vector{Integer} = externalfaces[ii,:]
     for jj in axes(externalfaces,1)
         constant_terms,x_terms = build_singlelayermatrix(integration_point,externalfaces[jj,:],orientationof_externalfaces[jj],dimensionality)
@@ -119,4 +118,4 @@ for ii in axes(externalfaces,1)
     end
 end
 end
-println(LHS_single)
+

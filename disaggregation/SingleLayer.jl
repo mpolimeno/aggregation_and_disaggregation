@@ -268,11 +268,11 @@ function build_singlelayermatrix(integration_point::Vector{Integer},face_center:
                     #######################################################
                     # Now we assign the analytical values to the xx terms
                     if ii == normal_direction
-                        println("CASE 1")
+                        # CASE 1
                         first_xij::Float64 = 0;
                         x_terms[ii,jj] = computexterms_caseone(x_s,y_s,z_s,z,first_xij)
                     else
-                        println("CASE 2")
+                        # CASE 2
                         x_s2::Float64 = position[ii,1]
                         y_s2::Float64 = position[numberoffaces_inacube-normal_direction-ii,1]
                         z_s2::Float64 = position[normal_direction,1]
@@ -286,7 +286,7 @@ function build_singlelayermatrix(integration_point::Vector{Integer},face_center:
                     #######################################################
                     # Now we assign the analytical values to the xx terms
                     if ii != normal_direction && jj == normal_direction
-                        println("CASE 3")
+                        # CASE 3
                         x_s3::Float64 = position[ii,1]
                         y_s3::Float64 = position[numberoffaces_inacube-normal_direction-ii,1]
                         z_s3::Float64 = position[normal_direction,1]
@@ -294,7 +294,7 @@ function build_singlelayermatrix(integration_point::Vector{Integer},face_center:
                         third_xij::Float64 = 0;
                         x_terms[ii,jj] = computexterms_casethree(x_s3,y_s3,z_s3,z3,third_xij)
                     elseif ii == normal_direction && jj != normal_direction
-                        println("CASE 4")
+                        # CASE 4
                         x_s4::Float64 = position[jj,1]
                         y_s4::Float64 = position[numberoffaces_inacube-normal_direction-jj,1]
                         z_s4::Float64 = position[normal_direction,1]
@@ -302,7 +302,7 @@ function build_singlelayermatrix(integration_point::Vector{Integer},face_center:
                         fourth_xij::Float64 = 0;
                         x_terms[ii,jj] = computexterms_casefour(x_s4,y_s4,z_s4,z4,fourth_xij)
                     else
-                        println("CASE 5")
+                        # CASE 5
                         x_s5::Float64 = position[ii,1]
                         y_s5::Float64 = position[jj,1]
                         z_s5::Float64 = position[normal_direction,1]
