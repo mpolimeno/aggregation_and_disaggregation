@@ -1,21 +1,25 @@
-include("RandomWalk.jl")
-include("Metrics.jl")
-include("BuildAggregate.jl")
-include("BaseCube.jl")
-include("BuildFaces.jl")
+include("aggregation/RandomWalk.jl")
+include("aggregation/Metrics.jl")
+include("aggregation/BuildAggregate.jl")
+include("aggregation/BaseCube.jl")
+include("aggregation/BuildFaces.jl")
+include("disaggregation/SingleLayer.jl")
 using .RandomWalk
 using .Metrics
 using .BuildAggregate
 using .BaseCube
 using .BuildFaces
+using .SingleLayer
+
 using Random
+using BenchmarkTools
 
 
 # select seed for reproducibility
 Random.seed!(1)
 
 # select how many cubes will be in the aggregate
-number_of_cubes::Integer = 2
+number_of_cubes::Integer = 100
 # select dimensionality -> MUST BE 3
 dimensionality::Integer = 3
 if dimensionality != 3
@@ -81,3 +85,37 @@ println("ORIENTATION OF EXTERNAL FACES OF AGGREGATE:")
 for ii in eachindex(orientationof_externalfaces)
     println(orientationof_externalfaces[ii])
 end
+
+# single-layer x_terms for one face (debuggin purposes)
+const_res, x_res = build_singlelayermatrix(externalfaces[4,:],externalfaces[6,:],orientationof_externalfaces[6],dimensionality)
+println("CONSTANT TERMS")
+for ii in axes(const_res,1)
+    for jj in axes(const_res,2)
+        print(const_res[ii,jj])
+        print("\t")
+    end
+    println()
+end
+println("X TERMS")
+for ii in axes(x_res,1)
+    for jj in axes(x_res,2)
+        print(x_res[ii,jj])
+        print("\t")
+    end
+    println()
+end
+
+# full single layer potential 
+println("SINGLE LAYER")
+# single-layer
+LHS_single = zeros(size(externalfaces,1)*dimensionality,size(externalfaces,1)*dimensionality)
+@btime begin
+Threads.@threads for ii in axes(externalfaces,1)
+    integration_point::Vector{Integer} = externalfaces[ii,:]
+    for jj in axes(externalfaces,1)
+        constant_terms,x_terms = build_singlelayermatrix(integration_point,externalfaces[jj,:],orientationof_externalfaces[jj],dimensionality)
+        LHS_single[dimensionality*(ii-1)+1:dimensionality*ii,dimensionality*(jj-1)+1:dimensionality*jj] = (constant_terms+x_terms);
+    end
+end
+end
+
