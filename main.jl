@@ -85,11 +85,15 @@ end
 # Reference: https://journals.aps.org/prfluids/abstract/10.1103/PhysRevFluids.5.044305
 
 # call function that returns the final aggregate
+println("TIME TO BUILD AGGREGATE (COMPILATION + RUNTIME)")
+@time begin
 final_position::Matrix{Integer} = individuallyadded_aggregate!(cubes,number_of_cubes,dimensionality,deltaR,steplength,attaching_distance)
+end
 println("POSITION OF CUBES IN AGGREGATE:")
 for ii in axes(cubes,1)
     println(final_position[ii,:])
 end
+
 
 # print position of external faces
 externalfaces::Matrix{Integer} = build_externalfacesofaggregate(numberoffaces_inacube,dimensionality,sidelength,centerof_baseface,final_position)
@@ -128,7 +132,8 @@ end
 println("SINGLE LAYER")
 # single-layer
 LHS_single = zeros(size(externalfaces,1)*dimensionality,size(externalfaces,1)*dimensionality)
-@btime begin
+println("TIME TO BUILD LHS OF LINEAR SYSTEM (COMPILATION + RUNTIME)")
+@time begin
 Threads.@threads for ii in axes(externalfaces,1)
     integration_point::Vector{Integer} = externalfaces[ii,:]
     for jj in axes(externalfaces,1)
@@ -137,4 +142,3 @@ Threads.@threads for ii in axes(externalfaces,1)
     end
 end
 end
-

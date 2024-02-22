@@ -53,7 +53,7 @@ function individuallyadded_aggregate!(cubes::Matrix{Integer},number_of_cubes::In
                     break
                 end
                 # check distance between walker and all the cube in the aggregates
-                for closest_cube = 1:number_of_cubes
+                Threads.@threads for closest_cube = 1:number_of_cubes
                     if round(norm(current_walker-cubes[closest_cube,:])) == attaching_distance 
                         cube_isapproaching = false  # cube stops walking
                         cube_isfar = false          # cube has attached
