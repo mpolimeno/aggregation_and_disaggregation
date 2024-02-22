@@ -21,6 +21,7 @@ Random.seed!(1)
 # initialize all constant types and parse them from the input files
 number_of_cubes::Integer = 0
 dimensionality::Integer = 0
+sidelength::Integer = 0
 numberoffaces_inacube::Integer = 0
 centerof_baseface::Integer = 0
 deltaR::Float64 = 0 # radius of sphere on whose surface each random walker is generated
@@ -32,11 +33,13 @@ for ii in axes(inputs,1)
             global number_of_cubes = inputs[ii,jj+1]
         elseif inputs[ii,jj] == "DIMENSIONALITY"
             global dimensionality = inputs[ii,jj+1]
+        elseif inputs[ii,jj] == "SIDELENGTH"
+            global sidelength = inputs[ii,jj+1]
         elseif inputs[ii,jj] == "FACES_IN_A_SINGLE_CUBE"
             global numberoffaces_inacube = inputs[ii,jj+1]
         elseif inputs[ii,jj] == "CENTER_OF_BASE_FACE"
             global centerof_baseface = inputs[ii,jj+1]
-        elseif inputs[ii,jj] == "DELTA_R"
+        elseif inputs[ii,jj] == "ADDITIONAL_RADIUS_OF_SPHERE_WHERE_RANDOM_WALKER_IS_GENERATED"
             global deltaR = inputs[ii,jj+1]
         elseif inputs[ii,jj] == "STEPLENGTH"
             global steplength = inputs[ii,jj+1]
@@ -67,7 +70,6 @@ cubes::Matrix{Integer} = zeros(number_of_cubes,dimensionality)
 ### THE BASE CUBE ####
 # define the position of the faces of the base cube of the aggregate
 position_offaces::Matrix{Integer} = positionoffaces_of_basecube(numberoffaces_inacube,dimensionality,centerof_baseface)
-# print position of faces of base cube
 println("POSITION OF FACES OF BASE CUBE:")
 for jj in axes(position_offaces,1)
     println(position_offaces[jj,:])
@@ -79,33 +81,31 @@ for kk in axes(position_offaces,1)
     println(orientationoffaces)
 end
 
-# implement Individually-added aggregation routine
+############ implement Individually-added aggregation routine ########################
 # Reference: https://journals.aps.org/prfluids/abstract/10.1103/PhysRevFluids.5.044305
 
 # call function that returns the final aggregate
 final_position::Matrix{Integer} = individuallyadded_aggregate!(cubes,number_of_cubes,dimensionality,deltaR,steplength,attaching_distance)
-
-# print result nicely
 println("POSITION OF CUBES IN AGGREGATE:")
 for ii in axes(cubes,1)
     println(final_position[ii,:])
 end
 
 # print position of external faces
-externalfaces::Matrix{Integer} = build_externalfacesofaggregate(numberoffaces_inacube,dimensionality,centerof_baseface,final_position)
+externalfaces::Matrix{Integer} = build_externalfacesofaggregate(numberoffaces_inacube,dimensionality,sidelength,centerof_baseface,final_position)
 println("POSITION OF EXTERNAL FACES OF AGGREGATE:")
 for ii in axes(externalfaces,1)
     println(externalfaces[ii,:])
 end
 
 # print orientation of external faces
-orientationof_externalfaces::Vector{String} = getorientation_externalfacesofaggregate(numberoffaces_inacube,dimensionality,centerof_baseface,final_position)
+orientationof_externalfaces::Vector{String} = getorientation_externalfacesofaggregate(numberoffaces_inacube,dimensionality,sidelength,centerof_baseface,final_position)
 println("ORIENTATION OF EXTERNAL FACES OF AGGREGATE:")
 for ii in eachindex(orientationof_externalfaces)
     println(orientationof_externalfaces[ii])
 end
 
-# single-layer x_terms for one face (debuggin purposes)
+# single-layer x_terms for one face (debugging purposes)
 const_res, x_res = build_singlelayermatrix(externalfaces[4,:],externalfaces[6,:],orientationof_externalfaces[6],dimensionality)
 println("CONSTANT TERMS")
 for ii in axes(const_res,1)

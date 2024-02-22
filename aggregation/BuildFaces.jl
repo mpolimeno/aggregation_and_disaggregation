@@ -6,7 +6,7 @@ using .BaseCube
 export build_externalfacesofaggregate
 export getorientation_externalfacesofaggregate
 
-function build_externalfacesofaggregate(numberoffaces_inacube::Integer,dimensionality::Integer,centerof_baseface::Integer,position_of_cubes::Matrix{Integer})
+function build_externalfacesofaggregate(numberoffaces_inacube::Integer,dimensionality::Integer,sidelength::Integer,centerof_baseface::Integer,position_of_cubes::Matrix{Integer})
     # get the position of the faces in the base cube to build all the faces of the aggregate
     facesof_basecube::Matrix{Integer} = positionoffaces_of_basecube(numberoffaces_inacube,dimensionality,centerof_baseface)
     number_of_cubes::Integer = size(position_of_cubes,1);
@@ -24,7 +24,7 @@ function build_externalfacesofaggregate(numberoffaces_inacube::Integer,dimension
         # check for adjacent cubes, so that to remove faces later
         for jj=1:(cube-1)
             for kk=1:numberoffaces_inacube
-                if isequal(vec(position_of_cubes[cube,:] + 2*facesof_basecube[kk,:]),position_of_cubes[jj,:])
+                if isequal(vec(position_of_cubes[cube,:] + sidelength*facesof_basecube[kk,:]),position_of_cubes[jj,:])
                     push!(faces_toremove,[cube kk])
                     push!(faces_toremove,[jj 7-kk])
                 end
@@ -60,7 +60,7 @@ function build_externalfacesofaggregate(numberoffaces_inacube::Integer,dimension
 end
 
 
-function getorientation_externalfacesofaggregate(numberoffaces_inacube::Integer,dimensionality::Integer,centerof_baseface::Integer,position_of_cubes::Matrix{Integer})
+function getorientation_externalfacesofaggregate(numberoffaces_inacube::Integer,dimensionality::Integer,sidelength::Integer,centerof_baseface::Integer,position_of_cubes::Matrix{Integer})
     number_of_cubes::Integer = size(position_of_cubes,1);
 
     # get the position of the faces in the base cube to build all the faces of the aggregate
@@ -76,7 +76,7 @@ function getorientation_externalfacesofaggregate(numberoffaces_inacube::Integer,
         # check for adjacent cubes, so that to remove faces later
         for jj=1:(cube-1)
             for kk=1:numberoffaces_inacube
-                if isequal(vec(position_of_cubes[cube,:] + 2*facesof_basecube[kk,:]),position_of_cubes[jj,:])
+                if isequal(vec(position_of_cubes[cube,:] + sidelength*facesof_basecube[kk,:]),position_of_cubes[jj,:])
                     push!(faces_toremove,[cube kk])
                     push!(faces_toremove,[jj 7-kk])
                 end
