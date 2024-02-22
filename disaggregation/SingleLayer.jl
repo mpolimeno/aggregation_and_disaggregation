@@ -100,7 +100,7 @@ function compute_constantterms(x_s::Float64,y_s::Float64,z_s::Float64,z::Float64
     return cij
 end
 
-function computexterms_caseone(x_s::Float64,y_s::Float64,z_s::Float64,z::Float64,first_xij::Float64)
+function computexterms_caseone(x_s::Float64,y_s::Float64,z_s::Float64,z::Float64,xij_caseone::Float64)
     if  round(z) != round(z_s) 
         if round(x_s) != 1 
             px1 = (1-x_s)*(atan(((1-y_s)*(1-x_s))/((z-z_s)*sqrt((z-z_s)*(z-z_s) + (1-x_s)*(1-x_s) + (1-y_s)*(1-y_s)))))/((z-z_s)*(1-x_s))
@@ -122,12 +122,12 @@ function computexterms_caseone(x_s::Float64,y_s::Float64,z_s::Float64,z::Float64
         px3 = 0
         px4 = 0
     end
-    first_xij = (z-z_s)*(z-z_s)*(px1+px2+px3+px4)
+    xij_caseone = (z-z_s)*(z-z_s)*(px1+px2+px3+px4)
 
-    return first_xij
+    return xij_caseone
 end
 
-function computexterms_casetwo(x_s::Float64,y_s::Float64,z_s::Float64,z::Float64,second_xij::Float64)
+function computexterms_casetwo(x_s::Float64,y_s::Float64,z_s::Float64,z::Float64,xij_casetwo::Float64)
     if round(z) != round(z_s)
         px1 = - (z-z_s)*atan(((1-x_s)*(1-y_s))/((z-z_s)*sqrt((z-z_s)*(z-z_s) +(1-x_s)*(1-x_s) + (1-y_s)*(1-y_s)))) + 
                 (z-z_s)*atan((1-y_s)/(z-z_s)) + (1-y_s)*(log(sqrt((z-z_s)*(z-z_s) + (1-x_s)*(1-x_s) + (1-y_s)*(1-y_s)) + (1-x_s)) - 1)
@@ -188,12 +188,12 @@ function computexterms_casetwo(x_s::Float64,y_s::Float64,z_s::Float64,z::Float64
             end
         end
     end
-    second_xij = px1 - px2 - px3 + px4
+    xij_casetwo = px1 - px2 - px3 + px4
 
-    return second_xij
+    return xij_casetwo
 end
 
-function computexterms_casethree(x_s::Float64,y_s::Float64,z_s::Float64,z::Float64,third_xij::Float64)
+function computexterms_casethree(x_s::Float64,y_s::Float64,z_s::Float64,z::Float64,xij_casethree::Float64)
     if round(z) != round(z_s)
         px1 =  -log(sqrt((z-z_s)*(z-z_s) + (1-x_s)*(1-x_s)  + (1-y_s)*(1-y_s)) + (1-y_s))
         px2 =  log(sqrt((z-z_s)*(z-z_s) + (1+x_s)*(1+x_s)  + (1-y_s)*(1-y_s)) + (1-y_s))
@@ -206,12 +206,12 @@ function computexterms_casethree(x_s::Float64,y_s::Float64,z_s::Float64,z::Float
         px3 = 0
         px4 = 0
     end
-    third_xij = (z-z_s)*(px1 + px2 + px3 + px4)
+    xij_casethree = (z-z_s)*(px1 + px2 + px3 + px4)
 
-    return third_xij
+    return xij_casethree
 end
 
-function computexterms_casefour(x_s::Float64,y_s::Float64,z_s::Float64,z::Float64,fourth_xij::Float64)
+function computexterms_casefour(x_s::Float64,y_s::Float64,z_s::Float64,z::Float64,xij_casefour::Float64)
     if round(z) != round(z_s)
         px1 =  -log(sqrt((z-z_s)*(z-z_s) + (1-x_s)*(1-x_s)  + (1-y_s)*(1-y_s)) + (1-y_s))
         px2 =  log(sqrt((z-z_s)*(z-z_s) + (1+x_s)*(1+x_s)  + (1-y_s)*(1-y_s)) + (1-y_s))
@@ -223,19 +223,19 @@ function computexterms_casefour(x_s::Float64,y_s::Float64,z_s::Float64,z::Float6
         px3 = 0
         px4 = 0
     end
-    fourth_xij= (z-z_s)*(px1 + px2 + px3 + px4)
+    xij_casefour= (z-z_s)*(px1 + px2 + px3 + px4)
 
-    return fourth_xij
+    return xij_casefour
 end
 
-function computexterms_casefive(x_s::Float64,y_s::Float64,z_s::Float64,z::Float64,fifth_xij::Float64)
+function computexterms_casefive(x_s::Float64,y_s::Float64,z_s::Float64,z::Float64,xij_casefive::Float64)
     px1 = -sqrt((z-z_s)*(z-z_s) + (1-x_s)*(1-x_s) + (1-y_s)*(1-y_s))
     px2 = sqrt((z-z_s)*(z-z_s) + (1-x_s)*(1-x_s) + (1+y_s)*(1+y_s))
     px3 = sqrt((z-z_s)*(z-z_s) + (1+x_s)*(1+x_s) + (1-y_s)*(1-y_s))
     px4 = -sqrt((z-z_s)*(z-z_s) + (1+x_s)*(1+x_s) + (1+y_s)*(1+y_s))
     
-    fifth_xij = px1 + px2 + px3 + px4
-    return fifth_xij
+    xij_casefive = px1 + px2 + px3 + px4
+    return xij_casefive
 end
 
 function build_singlelayermatrix(integration_point::Vector{Integer},face_center::Vector{Integer},face_orientation::String,dimensionality::Integer)
@@ -269,16 +269,16 @@ function build_singlelayermatrix(integration_point::Vector{Integer},face_center:
                     # Now we assign the analytical values to the xx terms
                     if ii == normal_direction
                         # CASE 1
-                        first_xij::Float64 = 0;
-                        x_terms[ii,jj] = computexterms_caseone(x_s,y_s,z_s,z,first_xij)
+                        xij_caseone::Float64 = 0;
+                        x_terms[ii,jj] = computexterms_caseone(x_s,y_s,z_s,z,xij_caseone)
                     else
                         # CASE 2
                         x_s2::Float64 = position[ii,1]
                         y_s2::Float64 = position[numberoffaces_inacube-normal_direction-ii,1]
                         z_s2::Float64 = position[normal_direction,1]
                         z2::Float64  = 0
-                        second_xij::Float64 = 0;
-                        x_terms[ii,jj] = computexterms_casetwo(x_s2,y_s2,z_s2,z2,second_xij)
+                        xij_casetwo::Float64 = 0;
+                        x_terms[ii,jj] = computexterms_casetwo(x_s2,y_s2,z_s2,z2,xij_casetwo)
                     end
 
                 else # ii!=jj, and so we are off the diagonal
@@ -291,24 +291,24 @@ function build_singlelayermatrix(integration_point::Vector{Integer},face_center:
                         y_s3::Float64 = position[numberoffaces_inacube-normal_direction-ii,1]
                         z_s3::Float64 = position[normal_direction,1]
                         z3::Float64  = 0
-                        third_xij::Float64 = 0;
-                        x_terms[ii,jj] = computexterms_casethree(x_s3,y_s3,z_s3,z3,third_xij)
+                        xij_casethree::Float64 = 0;
+                        x_terms[ii,jj] = computexterms_casethree(x_s3,y_s3,z_s3,z3,xij_casethree)
                     elseif ii == normal_direction && jj != normal_direction
                         # CASE 4
                         x_s4::Float64 = position[jj,1]
                         y_s4::Float64 = position[numberoffaces_inacube-normal_direction-jj,1]
                         z_s4::Float64 = position[normal_direction,1]
                         z4::Float64  = 0
-                        fourth_xij::Float64 = 0;
-                        x_terms[ii,jj] = computexterms_casefour(x_s4,y_s4,z_s4,z4,fourth_xij)
+                        xij_casefour::Float64 = 0;
+                        x_terms[ii,jj] = computexterms_casefour(x_s4,y_s4,z_s4,z4,xij_casefour)
                     else
                         # CASE 5
                         x_s5::Float64 = position[ii,1]
                         y_s5::Float64 = position[jj,1]
                         z_s5::Float64 = position[normal_direction,1]
                         z5::Float64  = 0
-                        fifth_xij::Float64 = 0;
-                        x_terms[ii,jj] = computexterms_casefive(x_s5,y_s5,z_s5,z5,fifth_xij)
+                        xij_casefive::Float64 = 0;
+                        x_terms[ii,jj] = computexterms_casefive(x_s5,y_s5,z_s5,z5,xij_casefive)
                     end
                 end
             end
